@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Ekspedisi - Dashboard</title>
+
+<link rel="icon" type="image/png" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+<link rel="stylesheet" href="css/dashboard.css">
+
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="img/logo.png" alt="logo" class="brand-logo" onerror="this.style.display='none'">
+            <span class="brand-name">Admin Ekspedisi</span>
+        </div>
+
+        <nav class="menu">
+            <a href="#" class="menu-item active" data-page="dashboard">
+                <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+            </a>
+        </nav>
+
+        <a href="index.html" class="logout">
+            <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="topbar">
+            <div class="welcome">
+                <h1>Selamat datang<span class="wave"></span></h1>
+            </div>
+            <div class="top-actions">
+                <button class="icon-btn" id="notifBtn">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge" id="notifCount">3</span>
+                </button>
+                <div class="admin-chip">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="admin-info">
+                        <strong>Admin</strong>
+                        <small>Administrator</small>
+                    </div>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- STAT CARDS -->
+        <section class="stats" id="statCards"></section>
+
+        <!-- SEARCH + FILTER -->
+        <section class="toolbar">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Cari plat nomor, driver, atau tipe kendaraan...">
+            </div>
+
+            <div class="custom-select" id="filterStatus" data-value="">
+                <button type="button" class="custom-select-trigger">
+                    <span class="custom-select-label">Semua Status</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="custom-select-options">
+                    <div class="custom-select-option selected" data-value="">Semua Status</div>
+                    <div class="custom-select-option" data-value="Tersedia">Tersedia</div>
+                    <div class="custom-select-option" data-value="Siap">Siap</div>
+                    <div class="custom-select-option" data-value="Kirim">Kirim</div>
+                    <div class="custom-select-option" data-value="Muat">Muat</div>
+                    <div class="custom-select-option" data-value="Blokir">Blokir</div>
+                </div>
+            </div>
+
+            <div class="custom-select" id="filterTipe" data-value="">
+                <button type="button" class="custom-select-trigger">
+                    <span class="custom-select-label">Semua Tipe</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="custom-select-options">
+                    <div class="custom-select-option selected" data-value="">Semua Tipe</div>
+                    <div class="custom-select-option" data-value="CDD">CDD</div>
+                    <div class="custom-select-option" data-value="CDD LONG">CDD LONG</div>
+                    <div class="custom-select-option" data-value="ENGKEL">ENGKEL</div>
+                    <div class="custom-select-option" data-value="FUSO">FUSO</div>
+                    <div class="custom-select-option" data-value="KONTAINER">KONTAINER</div>
+                    <div class="custom-select-option" data-value="PICK UP">PICK UP</div>
+                    <div class="custom-select-option" data-value="TRAILER PANJANG">TRAILER PANJANG</div>
+                    <div class="custom-select-option" data-value="TRAILER PENDEK">TRAILER PENDEK</div>
+                    <div class="custom-select-option" data-value="TRONTON">TRONTON</div>
+                    <div class="custom-select-option" data-value="TRONTON PENDEK">TRONTON PENDEK</div>
+                </div>
+            </div>
+
+            <button class="filter-btn" id="filterBtn">
+                <i class="fa-solid fa-filter"></i> Filter
+            </button>
+        </section>
+
+        <!-- LIST KENDARAAN -->
+        <h2 class="section-title">List Kendaraan</h2>
+        <section class="vehicle-grid" id="vehicleGrid"></section>
+
+    </main>
+</div>
+
+<!-- MODAL INFORMASI / KONFIRMASI KENDARAAN -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Informasi Kendaraan</h3>
+            <button class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="confirm-actions" id="modalActions">
+            <button class="btn-cancel" id="confirmCancel">Tidak</button>
+            <button class="btn-confirm" id="confirmYes">Ya</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>
