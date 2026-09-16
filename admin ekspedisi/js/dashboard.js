@@ -398,12 +398,6 @@ document.addEventListener("click",()=>{
 
 // ===== EVENTS =====
 document.getElementById("searchInput").addEventListener("input", applyFilter);
-document.getElementById("filterBtn").addEventListener("click", applyFilter);
-
-document.getElementById("notifBtn").addEventListener("click",()=>{
-    document.getElementById("notifCount").textContent = "0";
-    alert("Belum ada notifikasi baru.");
-});
 
 document.querySelector(".logout").addEventListener("click", async (e)=>{
     e.preventDefault();
