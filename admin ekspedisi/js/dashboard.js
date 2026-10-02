@@ -2,7 +2,7 @@
 const API_BASE = "https://v2.kencana.org/";
 const AUTH_KEY = "auth";
 const REMEMBER_KEY = "login_remember";
-const POLL_INTERVAL_MS = 10000;
+const POLL_INTERVAL_MS = 1000;
 
 // ===== AUTH GUARD =====
 function getAuth() {
@@ -64,12 +64,14 @@ const AVAILABILITY_MAP = { I: "Tersedia", R: "Siap", L: "Muat", M: "Kirim" };
 function mapVehicle(v) {
     // Cuma availability "I" yang dihitung Tersedia - kode lain/tak dikenal TIDAK
     // otomatis dianggap Tersedia, supaya jumlahnya tidak salah hitung.
-    let status = AVAILABILITY_MAP[v.availability] || null;
+    // Kode yang tidak dikenali dilabeli "Lainnya" (bukan disembunyikan) supaya
+    // tetap kelihatan di list & bisa dicek raw_availability-nya.
+    let status = AVAILABILITY_MAP[v.availability] || "Lainnya";
     if (v.active_flag === "N") status = "Blokir";
 
     return {
         id: v.vehicle_id,
-        status: status, // bisa null kalau kode availability-nya tidak dikenali
+        status: status,
         tipe: v.vehicle_type,
         plat: v.vehicle_id,
         driver: v.driver_name || v.exp_descr || "-",
@@ -105,36 +107,64 @@ function renderStats(){
     `).join("");
 }
 
-// ===== TRUCK SVG BY STATUS =====
-function truckSVG(status){
+// ===== KELOMPOK TIPE KENDARAAN (pakai foto asli, semua sudah hadap kanan) =====
+// CDD               -> img/truck-cdd.png
+// CDD LONG          -> img/truck-sedang.png (belum ada foto khusus)
+// ENGKEL            -> img/truck-engkel.png
+// FUSO              -> img/truck-fuso.png
+// PICK UP / L300    -> img/truck-pickup.png
+// KONTAINER         -> img/truck-kontainer.png
+// TRAILER PANJANG   -> img/truck-trailer.png
+// TRAILER PENDEK    -> img/truck-trailer-pendek.png
+// TRONTON, TRONTON PENDEK -> img/truck-tronton.png
+function vehicleGroup(tipe){
+    const t = (tipe || "").toUpperCase().trim();
+    if (t === "CDD") return "cdd";
+    if (t === "ENGKEL") return "engkel";
+    if (t === "FUSO") return "fuso";
+    if (t === "KONTAINER") return "kontainer";
+    if (t === "PICK UP") return "pickup";
+    if (t === "TRAILER PANJANG") return "trailer";
+    if (t === "TRAILER PENDEK") return "trailer-pendek";
+    if (t === "TRONTON" || t === "TRONTON PENDEK") return "tronton";
+    return "sedang"; // CDD LONG + tipe tak dikenal lainnya
+}
 
-    const theme = {
-        Tersedia:{text:"IDLE",  fill:"#94a3b8", light:"#e2e8f0", dark:"#64748b"},
-        Siap:    {text:"READY", fill:"#22c55e", light:"#dcfce7", dark:"#15803d"},
-        Kirim:   {text:"OTW",   fill:"#3b82f6", light:"#dbeafe", dark:"#1d4ed8"},
-        Muat:    {text:"LOAD",  fill:"#f59e0b", light:"#fef3c7", dark:"#b45309"},
-        Blokir:  {text:"BAN",   fill:"#ef4444", light:"#fee2e2", dark:"#b91c1c"},
-    }[status] || {text:"IDLE", fill:"#94a3b8", light:"#e2e8f0", dark:"#64748b"};
+const GROUP_IMAGE = {
+    sedang:         "img/truck-sedang.png",
+    cdd:            "img/truck-cdd.png",
+    engkel:         "img/truck-engkel.png",
+    fuso:           "img/truck-fuso.png",
+    pickup:         "img/truck-pickup.png",
+    kontainer:      "img/truck-kontainer.png",
+    trailer:        "img/truck-trailer.png",
+    "trailer-pendek": "img/truck-trailer-pendek.png",
+    tronton:        "img/truck-tronton.png",
+};
+
+// Label + kelas warna badge & filter foto berubah sesuai status
+const STATUS_THEME = {
+    Tersedia: { text:"IDLE",  color:"#64748b", cls:"status-tersedia" },
+    Siap:     { text:"READY", color:"#15803d", cls:"status-siap" },
+    Kirim:    { text:"OTW",   color:"#1d4ed8", cls:"status-kirim" },
+    Muat:     { text:"LOAD",  color:"#b45309", cls:"status-muat" },
+    Blokir:   { text:"BAN",   color:"#b91c1c", cls:"status-blokir" },
+    Lainnya:  { text:"NOT",   color:"#64748b", cls:"status-tersedia" },
+};
+
+// ===== VISUAL KENDARAAN (foto asli + filter warna status + badge) =====
+function vehicleVisualHTML(status, tipe){
+    const theme = STATUS_THEME[status] || STATUS_THEME.Tersedia;
+    const img = GROUP_IMAGE[vehicleGroup(tipe)] || GROUP_IMAGE.sedang;
+    const moving = status === "Kirim"
+        ? `<span class="speed-lines"><span></span><span></span><span></span></span>`
+        : "";
 
     return `
-    <svg viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="110" cy="132" rx="80" ry="8" fill="#000" opacity="0.07"/>
-        <rect x="20" y="35" width="110" height="70" rx="8" fill="${theme.light}" stroke="${theme.dark}" stroke-width="3"/>
-        <line x1="20" y1="60" x2="130" y2="60" stroke="${theme.dark}" stroke-width="1.5" opacity="0.4"/>
-        <path d="M130 55 h40 c6 0 11 3 14 8 l14 22 v20 h-68 z" fill="${theme.fill}" stroke="${theme.dark}" stroke-width="3"/>
-        <path d="M145 63 h22 c4 0 7 2 9 5 l9 14 h-40 z" fill="#dbeeff" stroke="${theme.dark}" stroke-width="2"/>
-        <rect x="185" y="95" width="14" height="10" rx="2" fill="${theme.dark}"/>
-        <circle cx="60" cy="112" r="18" fill="#334155"/>
-        <circle cx="60" cy="112" r="8" fill="#cbd5e1"/>
-        <circle cx="165" cy="112" r="18" fill="#334155"/>
-        <circle cx="165" cy="112" r="8" fill="#cbd5e1"/>
-        <rect x="48" y="60" width="60" height="22" rx="11" fill="#fff" stroke="${theme.fill}" stroke-width="2.5"/>
-        <text x="78" y="75" font-size="12" font-weight="700" text-anchor="middle" fill="${theme.fill}" font-family="Poppins, sans-serif">${theme.text}</text>
-        ${status==="Kirim" ? `
-        <line x1="0" y1="70" x2="16" y2="70" stroke="${theme.fill}" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-        <line x1="0" y1="80" x2="10" y2="80" stroke="${theme.fill}" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-        <line x1="0" y1="90" x2="6" y2="90" stroke="${theme.fill}" stroke-width="3" stroke-linecap="round" opacity="0.3"/>` : ``}
-    </svg>`;
+        ${moving}
+        <img src="${img}" class="truck-img ${theme.cls}" alt="${tipe || ''}" onerror="this.style.visibility='hidden'">
+        <span class="truck-badge" style="color:${theme.color};border-color:${theme.color}">${theme.text}</span>
+    `;
 }
 
 // ===== RENDER VEHICLE GRID =====
@@ -151,13 +181,13 @@ function renderVehicles(list){
     }
 
     grid.innerHTML = list.map(v=>{
-        const displayStatus = v.status || "Lainnya";
+        const displayStatus = v.status;
         return `
         <div class="vehicle-card" data-id="${v.id}">
             <div class="vehicle-status">
                 <span class="dot ${displayStatus}"></span> ${displayStatus}
             </div>
-            <div class="truck-visual">${truckSVG(displayStatus)}</div>
+            <div class="truck-visual">${vehicleVisualHTML(displayStatus, v.tipe)}</div>
             <div class="vehicle-type">${v.tipe}</div>
             <div class="vehicle-plate">${v.plat}</div>
             <div class="vehicle-driver" title="${v.driver}">${v.driver}</div>

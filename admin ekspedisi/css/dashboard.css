@@ -325,6 +325,7 @@ body{background:var(--gray-bg);color:var(--text);}
 .dot.Muat{background:var(--orange);}
 .dot.Blokir{background:var(--red);}
 .dot.Nonaktif{background:#0f172a;}
+.dot.Lainnya{background:#000000;}
 
 .truck-visual{
     height:130px;
@@ -332,8 +333,45 @@ body{background:var(--gray-bg);color:var(--text);}
     align-items:center;
     justify-content:center;
     margin:8px 0 10px;
+    position:relative;
 }
-.truck-visual svg{width:100%;max-width:180px;height:auto;}
+.truck-img{max-width:195px;max-height:110px;width:100%;height:auto;object-fit:contain;transition:filter .2s;}
+/* Warna truk ikut status kendaraan (duotone, hasilnya seragam walau warna asli foto beda-beda) */
+.truck-img.status-tersedia{filter:url(#duotone-tersedia);}
+.truck-img.status-siap{filter:url(#duotone-siap);}
+.truck-img.status-kirim{filter:url(#duotone-kirim);}
+.truck-img.status-muat{filter:url(#duotone-muat);}
+.truck-img.status-blokir{filter:url(#duotone-blokir);}
+.truck-badge{
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    background:#fff;
+    border:2.5px solid;
+    border-radius:11px;
+    padding:2px 12px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
+.speed-lines{
+    position:absolute;
+    left:-2px;
+    top:38%;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+.speed-lines span{
+    display:block;
+    height:3px;
+    border-radius:2px;
+    background:#1d4ed8;
+}
+.speed-lines span:nth-child(1){width:16px;opacity:.7;}
+.speed-lines span:nth-child(2){width:10px;opacity:.45;margin-left:4px;}
+.speed-lines span:nth-child(3){width:6px;opacity:.25;margin-left:8px;}
 .vehicle-type{
     color:var(--blue);
     font-weight:700;
